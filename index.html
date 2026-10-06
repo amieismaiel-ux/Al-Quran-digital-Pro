@@ -1252,7 +1252,7 @@
                 if (!surahData) {
                     try {
                         const reciter = appManager.settings.reciter || 'ar.alafasy';
-                        const res = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/editions/quran-uthmani,ms.melayu,${reciter}`);
+                        const res = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/editions/quran-uthmani,ms.basmeih,${reciter}`);
                         if (res.ok) {
                             const json = await res.json();
                             surahData = json.data;
