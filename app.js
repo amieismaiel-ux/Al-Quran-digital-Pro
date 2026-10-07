@@ -2,31 +2,20 @@
 
 /* =========================================================
    AL-QURAN DIGITAL V4
-   APP.JS
+   FULL APP.JS
    ========================================================= */
 
 const API = "https://api.alquran.cloud/v1";
 
-/*
-   Quran Uthmani
-*/
 const ARABIC_EDITION = "quran-uthmani";
-
-/*
-   Terjemahan Bahasa Melayu:
-   Basmeih
-*/
 const TRANSLATION_EDITION = "ms.basmeih";
 
-/*
-   Audio Mishary Alafasy
-*/
 const AUDIO_EDITION = "ar.alafasy";
 const AUDIO_BITRATE = 128;
 
 
 /* =========================================================
-   APP STATE
+   STATE
    ========================================================= */
 
 const state = {
@@ -39,11 +28,11 @@ const state = {
 
     currentAyahIndex: 0,
 
-    sortAZ: false,
-
     isPlaying: false,
 
     autoPlay: true,
+
+    sortAZ: false,
 
     arabicSize:
         Number(
@@ -75,7 +64,7 @@ let currentPlayButton = null;
 
 
 /* =========================================================
-   DOM HELPER
+   DOM
    ========================================================= */
 
 const $ = id =>
@@ -83,7 +72,7 @@ const $ = id =>
 
 
 /* =========================================================
-   START APP
+   INITIALIZE
    ========================================================= */
 
 document.addEventListener(
@@ -111,126 +100,89 @@ async function init() {
 
 function setupEvents() {
 
-    $("themeBtn")
-        ?.addEventListener(
-            "click",
-            toggleTheme
-        );
+    $("themeBtn")?.addEventListener(
+        "click",
+        toggleTheme
+    );
+
+    $("modalThemeBtn")?.addEventListener(
+        "click",
+        toggleTheme
+    );
+
+    $("settingsNav")?.addEventListener(
+        "click",
+        openSettings
+    );
+
+    $("closeSettings")?.addEventListener(
+        "click",
+        closeSettings
+    );
+
+    $("backBtn")?.addEventListener(
+        "click",
+        showHome
+    );
+
+    $("fontPlus")?.addEventListener(
+        "click",
+        increaseFont
+    );
+
+    $("fontMinus")?.addEventListener(
+        "click",
+        decreaseFont
+    );
+
+    $("settingsFontPlus")?.addEventListener(
+        "click",
+        increaseFont
+    );
+
+    $("settingsFontMinus")?.addEventListener(
+        "click",
+        decreaseFont
+    );
+
+    $("continueBtn")?.addEventListener(
+        "click",
+        continueLastRead
+    );
+
+    $("sortBtn")?.addEventListener(
+        "click",
+        toggleSort
+    );
+
+    $("searchInput")?.addEventListener(
+        "input",
+        handleSearch
+    );
+
+    $("clearSearch")?.addEventListener(
+        "click",
+        clearSearch
+    );
+
+    $("bookmarkNav")?.addEventListener(
+        "click",
+        showBookmarks
+    );
 
 
-    $("modalThemeBtn")
-        ?.addEventListener(
-            "click",
-            toggleTheme
-        );
+    /* AUDIO EVENTS */
 
-
-    $("settingsNav")
-        ?.addEventListener(
-            "click",
-            openSettings
-        );
-
-
-    $("closeSettings")
-        ?.addEventListener(
-            "click",
-            closeSettings
-        );
-
-
-    $("backBtn")
-        ?.addEventListener(
-            "click",
-            showHome
-        );
-
-
-    $("fontPlus")
-        ?.addEventListener(
-            "click",
-            increaseFont
-        );
-
-
-    $("fontMinus")
-        ?.addEventListener(
-            "click",
-            decreaseFont
-        );
-
-
-    $("settingsFontPlus")
-        ?.addEventListener(
-            "click",
-            increaseFont
-        );
-
-
-    $("settingsFontMinus")
-        ?.addEventListener(
-            "click",
-            decreaseFont
-        );
-
-
-    $("continueBtn")
-        ?.addEventListener(
-            "click",
-            continueLastRead
-        );
-
-
-    $("sortBtn")
-        ?.addEventListener(
-            "click",
-            toggleSort
-        );
-
-
-    $("searchInput")
-        ?.addEventListener(
-            "input",
-            handleSearch
-        );
-
-
-    $("clearSearch")
-        ?.addEventListener(
-            "click",
-            clearSearch
-        );
-
-
-    $("bookmarkNav")
-        ?.addEventListener(
-            "click",
-            showBookmarks
-        );
-
-
-    /*
-       Bila audio habis,
-       terus pergi ke ayat berikutnya.
-    */
     audio.addEventListener(
         "ended",
         handleAudioEnded
     );
 
-
-    /*
-       Update progress bar.
-    */
     audio.addEventListener(
         "timeupdate",
         updateAudioProgress
     );
 
-
-    /*
-       Bila audio sedang bermain.
-    */
     audio.addEventListener(
         "play",
         () => {
@@ -242,10 +194,6 @@ function setupEvents() {
         }
     );
 
-
-    /*
-       Bila audio pause.
-    */
     audio.addEventListener(
         "pause",
         () => {
@@ -261,7 +209,7 @@ function setupEvents() {
 
 
 /* =========================================================
-   LOAD ALL 114 SURAH
+   LOAD 114 SURAH
    ========================================================= */
 
 async function loadSurahList() {
@@ -274,8 +222,13 @@ async function loadSurahList() {
 
         grid.innerHTML = `
             <div class="loading">
+
                 <div class="spinner"></div>
-                <p>Memuatkan 114 Surah...</p>
+
+                <p>
+                    Memuatkan 114 Surah...
+                </p>
+
             </div>
         `;
 
@@ -305,7 +258,7 @@ async function loadSurahList() {
         ) {
 
             throw new Error(
-                "Data Surah tidak lengkap."
+                "Senarai Surah tidak lengkap."
             );
 
         }
@@ -315,9 +268,8 @@ async function loadSurahList() {
             result.data;
 
 
-        $("surahCount")
-            .textContent =
-            `${state.surahs.length} Surah`;
+        $("surahCount").textContent =
+            "114 Surah";
 
 
         renderSurahs(
@@ -334,6 +286,7 @@ async function loadSurahList() {
 
 
         grid.innerHTML = `
+
             <div class="loading">
 
                 <div style="font-size:42px">
@@ -341,7 +294,7 @@ async function loadSurahList() {
                 </div>
 
                 <p>
-                    Tidak dapat memuatkan 114 Surah.
+                    Gagal memuatkan 114 Surah.
                 </p>
 
                 <button
@@ -349,16 +302,17 @@ async function loadSurahList() {
                     style="
                         margin-top:12px;
                         padding:10px 16px;
+                        border:0;
                         border-radius:10px;
                         background:#0f766e;
                         color:white;
-                        border:0;
                     "
                 >
                     Cuba Lagi
                 </button>
 
             </div>
+
         `;
 
     }
@@ -367,7 +321,7 @@ async function loadSurahList() {
 
 
 /* =========================================================
-   RENDER SURAH LIST
+   RENDER SURAH
    ========================================================= */
 
 function renderSurahs(list) {
@@ -395,8 +349,11 @@ function renderSurahs(list) {
 
             <article
                 class="surah-card"
-                data-number="${surah.number}"
-                onclick="openSurah(${surah.number})"
+                onclick="
+                    openSurah(
+                        ${surah.number}
+                    )
+                "
             >
 
                 <div class="surah-num">
@@ -407,9 +364,11 @@ function renderSurahs(list) {
                 <div class="surah-info">
 
                     <div class="surah-name-latin">
+
                         ${escapeHTML(
                             surah.englishName
                         )}
+
                     </div>
 
 
@@ -498,6 +457,7 @@ async function openSurah(
 
 
     container.innerHTML = `
+
         <div class="loading">
 
             <div class="spinner"></div>
@@ -510,6 +470,7 @@ async function openSurah(
             </p>
 
         </div>
+
     `;
 
 
@@ -522,83 +483,111 @@ async function openSurah(
     try {
 
         /*
-           Arabic + Bahasa Melayu
-           dalam satu request.
-        */
+         * REQUEST 1
+         * ARABIC
+         */
 
-        const response =
+        const arabicResponse =
             await fetch(
-                `${API}/surah/${surahNumber}/editions/${ARABIC_EDITION},${TRANSLATION_EDITION}`
+                `${API}/surah/${surahNumber}/${ARABIC_EDITION}`
             );
 
 
-        if (!response.ok) {
+        if (!arabicResponse.ok) {
 
             throw new Error(
-                "Gagal mendapatkan ayat."
+                "Data Arab gagal dimuatkan."
             );
 
         }
 
 
-        const result =
-            await response.json();
+        const arabicResult =
+            await arabicResponse.json();
+
+
+        const arabicData =
+            arabicResult.data;
 
 
         if (
-            !result.data ||
-            !Array.isArray(result.data)
+            !arabicData ||
+            !arabicData.ayahs
         ) {
 
             throw new Error(
-                "Format data tidak sah."
-            );
-
-        }
-
-
-        const arabic =
-            result.data.find(
-                edition =>
-                    edition.edition &&
-                    edition.edition.identifier ===
-                    ARABIC_EDITION
-            );
-
-
-        const translation =
-            result.data.find(
-                edition =>
-                    edition.edition &&
-                    edition.edition.identifier ===
-                    TRANSLATION_EDITION
-            );
-
-
-        if (!arabic) {
-
-            throw new Error(
-                "Data Arab tidak tersedia."
+                "Data Arab tidak sah."
             );
 
         }
 
 
         /*
-           Jika terjemahan gagal,
-           kita TIDAK akan reka terjemahan.
-        */
+         * REQUEST 2
+         * BASMEIH
+         */
+
+        const malayResponse =
+            await fetch(
+                `${API}/surah/${surahNumber}/${TRANSLATION_EDITION}`
+            );
+
+
+        if (!malayResponse.ok) {
+
+            throw new Error(
+                "Data terjemahan Bahasa Melayu gagal dimuatkan."
+            );
+
+        }
+
+
+        const malayResult =
+            await malayResponse.json();
+
+
+        const malayData =
+            malayResult.data;
+
+
+        if (
+            !malayData ||
+            !malayData.ayahs
+        ) {
+
+            throw new Error(
+                "Data terjemahan Bahasa Melayu tidak sah."
+            );
+
+        }
+
+
+        /*
+         * PASTIKAN BILANGAN AYAT SAMA
+         */
+
+        if (
+            arabicData.ayahs.length !==
+            malayData.ayahs.length
+        ) {
+
+            throw new Error(
+                "Bilangan ayat Arab dan terjemahan tidak sepadan."
+            );
+
+        }
+
+
+        /*
+         * GABUNG ARAB + MELAYU
+         */
 
         state.currentAyahs =
-            arabic.ayahs.map(
+            arabicData.ayahs.map(
                 (ayah, index) => {
 
-                    const translatedAyah =
-                        translation &&
-                        translation.ayahs &&
-                        translation.ayahs[index]
-                            ? translation.ayahs[index]
-                            : null;
+                    const malayAyah =
+                        malayData.ayahs[index];
 
 
                     return {
@@ -613,9 +602,9 @@ async function openSurah(
                             ayah.number,
 
                         translation:
-                            translatedAyah
-                                ? translatedAyah.text
-                                : "Terjemahan Bahasa Melayu tidak tersedia."
+                            malayAyah
+                                ? malayAyah.text
+                                : "Terjemahan tidak tersedia."
 
                     };
 
@@ -627,9 +616,8 @@ async function openSurah(
 
 
         /*
-           Selepas render,
-           scroll ke ayat terakhir dibaca.
-        */
+         * SCROLL KE AYAT TERAKHIR
+         */
 
         if (
             targetAyah > 1
@@ -647,8 +635,10 @@ async function openSurah(
                     if (element) {
 
                         element.scrollIntoView({
-                            behavior: "smooth",
-                            block: "center"
+                            behavior:
+                                "smooth",
+                            block:
+                                "center"
                         });
 
                     }
@@ -662,10 +652,14 @@ async function openSurah(
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Quran error:",
+            error
+        );
 
 
         container.innerHTML = `
+
             <div class="loading">
 
                 <div style="font-size:42px">
@@ -673,7 +667,9 @@ async function openSurah(
                 </div>
 
                 <p>
-                    Gagal memuatkan ayat.
+                    ${escapeHTML(
+                        error.message
+                    )}
                 </p>
 
                 <button
@@ -686,16 +682,17 @@ async function openSurah(
                     style="
                         margin-top:12px;
                         padding:10px 16px;
+                        border:0;
                         border-radius:10px;
                         background:#0f766e;
                         color:white;
-                        border:0;
                     "
                 >
                     Cuba Lagi
                 </button>
 
             </div>
+
         `;
 
     }
@@ -738,6 +735,7 @@ function renderSurahHeader(
             )}
 
             •
+
             ${surah.numberOfAyahs}
             Ayat
 
@@ -765,21 +763,6 @@ function renderAyahs() {
 
     const container =
         $("ayahContainer");
-
-
-    if (
-        !state.currentAyahs.length
-    ) {
-
-        container.innerHTML = `
-            <div class="loading">
-                <p>Tiada ayat tersedia.</p>
-            </div>
-        `;
-
-        return;
-
-    }
 
 
     container.innerHTML =
@@ -834,9 +817,7 @@ function renderAyahs() {
                                     )
                                 "
                             >
-
                                 ⧉
-
                             </button>
 
 
@@ -848,9 +829,7 @@ function renderAyahs() {
                                     )
                                 "
                             >
-
                                 ↗
-
                             </button>
 
                         </div>
@@ -913,7 +892,7 @@ function renderAyahs() {
 
 
 /* =========================================================
-   PLAY AYAT
+   PLAY AYAH
    ========================================================= */
 
 function playAyah(
@@ -933,10 +912,9 @@ function playAyah(
 
 
     /*
-       Jika tekan ayat yang sama
-       ketika sedang bermain,
-       pause.
-    */
+     * Jika ayat yang sama sedang bermain:
+     * PAUSE
+     */
 
     if (
         state.currentAyahIndex === index &&
@@ -980,19 +958,45 @@ function playCurrentAyah() {
     }
 
 
+    /*
+     * URL AUDIO AYAT
+     *
+     * Contoh:
+     * Ayat global 1
+     *
+     * https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3
+     */
+
     const url =
         `https://cdn.islamic.network/quran/audio/${AUDIO_BITRATE}/${AUDIO_EDITION}/${ayah.globalNumber}.mp3`;
 
 
     /*
-       Reset progress
-    */
+     * RESET BUTTON LAMA
+     */
+
+    updateCurrentButton(
+        "▶"
+    );
+
+
+    currentPlayButton =
+        null;
+
+
+    /*
+     * CARI CARD AYAT
+     */
 
     const card =
         document.getElementById(
             `ayah-${ayah.number}`
         );
 
+
+    /*
+     * RESET PROGRESS
+     */
 
     if (card) {
 
@@ -1004,7 +1008,8 @@ function playCurrentAyah() {
 
         if (progress) {
 
-            progress.value = 0;
+            progress.value =
+                0;
 
         }
 
@@ -1012,26 +1017,8 @@ function playCurrentAyah() {
 
 
     /*
-       Reset button lama.
-    */
-
-    updateCurrentButton("▶");
-
-
-    currentPlayButton = null;
-
-
-    /*
-       Set audio.
-    */
-
-    audio.src =
-        url;
-
-
-    /*
-       Simpan button baru.
-    */
+     * BUTTON AYAT SEMASA
+     */
 
     if (card) {
 
@@ -1043,12 +1030,20 @@ function playCurrentAyah() {
     }
 
 
-    updateCurrentButton("⏸");
+    /*
+     * SET AUDIO
+     */
+
+    audio.src =
+        url;
+
+
+    audio.load();
 
 
     /*
-       Simpan last read.
-    */
+     * SIMPAN LAST READ
+     */
 
     saveLastRead(
         state.currentSurah.number,
@@ -1057,19 +1052,24 @@ function playCurrentAyah() {
 
 
     /*
-       Scroll ayat sedang dimainkan
-       ke tengah skrin.
-    */
+     * SCROLL KE AYAT
+     */
 
-    card?.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-    });
+    if (card) {
+
+        card.scrollIntoView({
+            behavior:
+                "smooth",
+            block:
+                "center"
+        });
+
+    }
 
 
     /*
-       Mainkan audio.
-    */
+     * PLAY
+     */
 
     audio.play()
         .then(
@@ -1078,15 +1078,24 @@ function playCurrentAyah() {
                 state.isPlaying =
                     true;
 
+                updateCurrentButton(
+                    "⏸"
+                );
+
             }
         )
         .catch(
             error => {
 
                 console.error(
-                    "Audio gagal dimainkan:",
+                    "Audio gagal:",
                     error
                 );
+
+
+                state.isPlaying =
+                    false;
+
 
                 updateCurrentButton(
                     "▶"
@@ -1099,37 +1108,48 @@ function playCurrentAyah() {
 
 
 /* =========================================================
-   AUDIO ENDED
+   AUTO NEXT
    ========================================================= */
 
 function handleAudioEnded() {
 
     /*
-       Ayat terakhir?
-    */
+     * AUDIO AYAT SEMASA SUDAH HABIS
+     */
+
+    state.isPlaying =
+        false;
+
+
+    updateCurrentButton(
+        "▶"
+    );
+
+
+    currentPlayButton =
+        null;
+
+
+    /*
+     * NEXT AYAT
+     */
 
     const nextIndex =
         state.currentAyahIndex + 1;
 
+
+    /*
+     * JIKA SUDAH AYAT TERAKHIR
+     */
 
     if (
         nextIndex >=
         state.currentAyahs.length
     ) {
 
-        /*
-           Tamat Surah.
-        */
+        state.currentAyahIndex =
+            state.currentAyahs.length - 1;
 
-        state.isPlaying =
-            false;
-
-        updateCurrentButton(
-            "▶"
-        );
-
-        currentPlayButton =
-            null;
 
         return;
 
@@ -1137,8 +1157,8 @@ function handleAudioEnded() {
 
 
     /*
-       Auto-next.
-    */
+     * AUTO PLAY AKTIF
+     */
 
     if (
         state.autoPlay
@@ -1149,9 +1169,9 @@ function handleAudioEnded() {
 
 
         /*
-           Sedikit delay supaya
-           pertukaran audio lancar.
-        */
+         * Tunggu sedikit
+         * sebelum main ayat seterusnya
+         */
 
         setTimeout(
             () => {
@@ -1159,7 +1179,7 @@ function handleAudioEnded() {
                 playCurrentAyah();
 
             },
-            250
+            150
         );
 
     }
@@ -1168,7 +1188,7 @@ function handleAudioEnded() {
 
 
 /* =========================================================
-   UPDATE AUDIO PROGRESS
+   AUDIO PROGRESS
    ========================================================= */
 
 function updateAudioProgress() {
@@ -1220,7 +1240,7 @@ function updateAudioProgress() {
 
 
 /* =========================================================
-   UPDATE CURRENT PLAY BUTTON
+   BUTTON UPDATE
    ========================================================= */
 
 function updateCurrentButton(
@@ -1231,8 +1251,7 @@ function updateCurrentButton(
         currentPlayButton
     ) {
 
-        currentPlayButton
-            .textContent =
+        currentPlayButton.textContent =
             symbol;
 
     }
@@ -1283,9 +1302,7 @@ function toggleBookmark(
         );
 
 
-    if (
-        index >= 0
-    ) {
+    if (index >= 0) {
 
         state.bookmarks.splice(
             index,
@@ -1315,7 +1332,7 @@ function toggleBookmark(
 
 
 /* =========================================================
-   CHECK BOOKMARK
+   IS BOOKMARKED
    ========================================================= */
 
 function isBookmarked(
@@ -1370,10 +1387,7 @@ ${ayah.translation}`;
         );
 
 
-    } catch (error) {
-
-        console.error(error);
-
+    } catch {
 
         alert(
             "Tidak dapat menyalin ayat."
@@ -1385,7 +1399,7 @@ ${ayah.translation}`;
 
 
 /* =========================================================
-   SHARE AYAH
+   SHARE
    ========================================================= */
 
 async function shareAyah(
@@ -1435,21 +1449,14 @@ ${ayah.translation}`;
 
 
             alert(
-                "Teks telah disalin untuk dikongsi."
+                "Teks telah disalin."
             );
 
         }
 
-    } catch (error) {
+    } catch {
 
-        /*
-           User mungkin tekan Cancel.
-           Jangan tunjuk error.
-        */
-
-        console.log(
-            "Share dibatalkan."
-        );
+        /* User cancel share */
 
     }
 
@@ -1468,7 +1475,6 @@ function saveLastRead(
     state.lastRead = {
 
         surah,
-
         ayah
 
     };
@@ -1497,9 +1503,7 @@ function renderLastRead() {
         $("lastReadCard");
 
 
-    if (
-        !card
-    ) return;
+    if (!card) return;
 
 
     if (
@@ -1572,7 +1576,7 @@ function continueLastRead() {
 
 
 /* =========================================================
-   SEARCH SURAH
+   SEARCH
    ========================================================= */
 
 function handleSearch(
@@ -1615,7 +1619,6 @@ function handleSearch(
                 String(
                     surah.number
                 ) === query
-
         );
 
 
@@ -1653,8 +1656,7 @@ function toggleSort() {
         !state.sortAZ;
 
 
-    $("sortBtn")
-        .textContent =
+    $("sortBtn").textContent =
         state.sortAZ
             ? "1-114"
             : "A-Z";
@@ -1714,9 +1716,7 @@ function showPage(
         $(pageId);
 
 
-    if (
-        page
-    ) {
+    if (page) {
 
         page.classList.add(
             "active"
@@ -1778,20 +1778,12 @@ function toggleTheme() {
 }
 
 
-/* =========================================================
-   APPLY THEME
-   ========================================================= */
-
 function applySavedTheme() {
 
-    const theme =
+    if (
         localStorage.getItem(
             "theme"
-        );
-
-
-    if (
-        theme === "dark"
+        ) === "dark"
     ) {
 
         document.body.classList.add(
@@ -1805,10 +1797,6 @@ function applySavedTheme() {
 
 }
 
-
-/* =========================================================
-   UPDATE THEME SWITCH
-   ========================================================= */
 
 function updateThemeSwitch() {
 
@@ -1858,7 +1846,7 @@ function closeSettings() {
 
 
 /* =========================================================
-   FONT SIZE
+   FONT
    ========================================================= */
 
 function applyArabicSize() {
@@ -1979,7 +1967,7 @@ function escapeHTML(
 
 
 /* =========================================================
-   GLOBAL FUNCTIONS
+   GLOBAL
    ========================================================= */
 
 window.openSurah =
