@@ -2256,7 +2256,152 @@ async function downloadAllQuranOffline() {
 
     }
 }
+// =====================================================
+// SIMPAN AUDIO SURAH UNTUK OFFLINE
+// =====================================================
 
+async function downloadCurrentSurahAudio() {
+
+    const button = document.getElementById("downloadAudioBtn");
+
+    if (!button) return;
+
+    if (!navigator.onLine) {
+        alert("Internet diperlukan untuk memuat turun audio.");
+        return;
+    }
+
+    // Dapatkan nombor Surah yang sedang dibuka
+    const surahNumber =
+        state?.currentSurah?.number ||
+        window.currentSurah?.number;
+
+    if (!surahNumber) {
+        alert("Sila buka Surah terlebih dahulu sebelum menyimpan audio.");
+        return;
+    }
+
+    const surahName =
+        state?.currentSurah?.englishName ||
+        state?.currentSurah?.name ||
+        `Surah ${surahNumber}`;
+
+    const confirmDownload = confirm(
+        `Simpan audio ${surahName} untuk offline?\n\n` +
+        `Audio setiap ayat Surah ini akan disimpan ke telefon.`
+    );
+
+    if (!confirmDownload) return;
+
+    try {
+
+        button.disabled = true;
+        button.textContent = "⏳";
+
+        // Dapatkan data Surah
+        const response = await fetch(
+            `${API}/surah/${surahNumber}/quran-uthmani`
+        );
+
+        if (!response.ok) {
+            throw new Error("Gagal mendapatkan data Surah.");
+        }
+
+        const result = await response.json();
+
+        const ayahs = result?.data?.ayahs || [];
+
+        if (!ayahs.length) {
+            throw new Error("Ayat Surah tidak dijumpai.");
+        }
+
+        // Cache audio
+        const audioCache = await caches.open(
+            "alquran-audio-v6"
+        );
+
+        let saved = 0;
+
+        for (const ayah of ayahs) {
+
+            const globalAyahNumber = ayah.number;
+
+            const audioUrl =
+                `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${globalAyahNumber}.mp3`;
+
+            const existing = await audioCache.match(audioUrl);
+
+            if (!existing) {
+
+                const audioResponse =
+                    await fetch(audioUrl);
+
+                if (!audioResponse.ok) {
+                    throw new Error(
+                        `Audio ayat ${ayah.numberInSurah} gagal dimuat turun.`
+                    );
+                }
+
+                await audioCache.put(
+                    audioUrl,
+                    audioResponse.clone()
+                );
+            }
+
+            saved++;
+
+            button.textContent =
+                `🔊 ${saved}/${ayahs.length}`;
+        }
+
+        localStorage.setItem(
+            `audioOffline_${surahNumber}`,
+            "true"
+        );
+
+        button.textContent =
+            `✅ ${ayahs.length}/${ayahs.length}`;
+
+        alert(
+            `Alhamdulillah!\n\n` +
+            `Audio ${surahName} telah disimpan untuk offline.`
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Download audio gagal:",
+            error
+        );
+
+        alert(
+            "Download audio gagal.\n\n" +
+            error.message +
+            "\n\nSila cuba semula."
+        );
+
+        button.textContent = "🔊";
+
+    } finally {
+
+        button.disabled = false;
+
+    }
+}
+
+
+// Sambungkan butang Audio Offline
+const downloadAudioBtn =
+    document.getElementById("downloadAudioBtn");
+
+if (downloadAudioBtn) {
+
+    downloadAudioBtn.addEventListener(
+        "click",
+        downloadCurrentSurahAudio
+    );
+
+}
 
 // ==========================================
 // BUTANG SIMPAN QURAN OFFLINE
