@@ -1,20 +1,15 @@
 {
-  "name": "Al-Quran Pro",
-  "short_name": "Al-Quran Pro",
-  "description": "Aplikasi Al-Quran digital lengkap dengan terjemahan Bahasa Melayu, audio, carian dan penanda bacaan.",
-  "lang": "ms-MY",
-  "dir": "ltr",
+  "name": "Al-Quran Digital",
+  "short_name": "Al-Quran",
+  "description": "Al-Quran Digital dengan 114 Surah, terjemahan Bahasa Melayu dan audio.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f8fafc",
-  "theme_color": "#047857",
-  "categories": [
-    "books",
-    "education",
-    "lifestyle"
-  ],
+  "background_color": "#f5f7f7",
+  "theme_color": "#0f766e",
+  "lang": "ms-MY",
+  "dir": "ltr",
   "icons": [
     {
       "src": "/icon-192.png",
