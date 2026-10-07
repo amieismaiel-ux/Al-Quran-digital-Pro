@@ -12,7 +12,63 @@ const TRANSLATION_EDITION = "ms.basmeih";
 
 const AUDIO_EDITION = "ar.alafasy";
 const AUDIO_BITRATE = 128;
+// ==========================================
+// OFFLINE QURAN CACHE
+// ==========================================
 
+const QURAN_CACHE_NAME = "alquran-quran-data-v1";
+
+async function saveQuranOffline(key, data) {
+    try {
+        const cache = await caches.open(QURAN_CACHE_NAME);
+
+        const response = new Response(
+            JSON.stringify(data),
+            {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        await cache.put(
+            new Request(`./offline-quran/${key}`),
+            response
+        );
+
+        console.log("Quran disimpan offline:", key);
+
+    } catch (error) {
+        console.error(
+            "Gagal simpan Quran offline:",
+            error
+        );
+    }
+}
+
+async function getQuranOffline(key) {
+    try {
+        const cache = await caches.open(QURAN_CACHE_NAME);
+
+        const response = await cache.match(
+            new Request(`./offline-quran/${key}`)
+        );
+
+        if (!response) {
+            return null;
+        }
+
+        return await response.json();
+
+    } catch (error) {
+        console.error(
+            "Gagal baca Quran offline:",
+            error
+        );
+
+        return null;
+    }
+}
 
 /* =========================================================
    STATE
