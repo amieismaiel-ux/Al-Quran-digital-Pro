@@ -666,7 +666,18 @@ async function openSurah(
 
                 }
             );
+// ==========================================
+// SIMPAN SURAH UNTUK OFFLINE
+// ==========================================
 
+await saveQuranOffline(
+    `surah-${surahNumber}`,
+    {
+        surahNumber: surahNumber,
+        surah: surah,
+        ayahs: state.currentAyahs
+    }
+);
 
         renderAyahs();
 
