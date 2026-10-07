@@ -1,4 +1,4 @@
-const CACHE_NAME = "alquran-digital-v5";
+const CACHE_NAME = "alquran-digital-v6";
 
 const APP_FILES = [
   "./",
