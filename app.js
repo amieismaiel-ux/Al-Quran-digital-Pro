@@ -537,7 +537,35 @@ async function openSurah(
 
 
     try {
+// ==========================================
+// BACA DARIPADA CACHE JIKA OFFLINE
+// ==========================================
 
+if (!navigator.onLine) {
+
+    const offlineData = await getQuranOffline(
+        `surah-${surahNumber}`
+    );
+
+    if (
+        offlineData &&
+        offlineData.ayahs &&
+        offlineData.ayahs.length
+    ) {
+
+        state.currentAyahs = offlineData.ayahs;
+
+        renderAyahs();
+
+        return;
+    }
+
+    alert(
+        "Surah ini belum disimpan untuk bacaan offline. Sila buka Surah ini ketika internet tersedia terlebih dahulu."
+    );
+
+    return;
+}
         /*
          * REQUEST 1
          * ARABIC
