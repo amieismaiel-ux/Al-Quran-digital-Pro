@@ -2085,3 +2085,193 @@ window.playAyah =
 
 window.showHome =
     showHome;
+// ==========================================
+// DOWNLOAD SEMUA 114 SURAH UNTUK OFFLINE
+// ==========================================
+
+async function downloadAllQuranOffline() {
+
+    const button = document.getElementById("downloadQuranBtn");
+
+    if (!button) return;
+
+    if (!navigator.onLine) {
+        alert(
+            "Internet diperlukan untuk memuat turun 114 Surah."
+        );
+        return;
+    }
+
+    const confirmDownload = confirm(
+        "Simpan semua 114 Surah dan terjemahan Bahasa Melayu untuk kegunaan offline?"
+    );
+
+    if (!confirmDownload) return;
+
+    button.disabled = true;
+
+    try {
+
+        for (let i = 1; i <= 114; i++) {
+
+            button.textContent = `📥 ${i}/114`;
+
+            console.log(
+                `Menyimpan Surah ${i} daripada 114...`
+            );
+
+            const arabicResponse = await fetch(
+                `${API}/surah/${i}/${ARABIC_EDITION}`
+            );
+
+            if (!arabicResponse.ok) {
+                throw new Error(
+                    `Gagal mendapatkan Arab Surah ${i}`
+                );
+            }
+
+            const arabicResult =
+                await arabicResponse.json();
+
+            const arabicData =
+                arabicResult.data;
+
+            const malayResponse = await fetch(
+                `${API}/surah/${i}/${TRANSLATION_EDITION}`
+            );
+
+            if (!malayResponse.ok) {
+                throw new Error(
+                    `Gagal mendapatkan terjemahan Surah ${i}`
+                );
+            }
+
+            const malayResult =
+                await malayResponse.json();
+
+            const malayData =
+                malayResult.data;
+
+            if (
+                !arabicData ||
+                !arabicData.ayahs ||
+                !malayData ||
+                !malayData.ayahs
+            ) {
+                throw new Error(
+                    `Data Surah ${i} tidak lengkap`
+                );
+            }
+
+            if (
+                arabicData.ayahs.length !==
+                malayData.ayahs.length
+            ) {
+                throw new Error(
+                    `Bilangan ayat Surah ${i} tidak sepadan`
+                );
+            }
+
+            const surahInfo =
+                state.surahs.find(
+                    item => item.number === i
+                );
+
+            const ayahs =
+                arabicData.ayahs.map(
+                    (ayah, index) => {
+
+                        const malayAyah =
+                            malayData.ayahs[index];
+
+                        return {
+
+                            arabic: ayah.text,
+
+                            number:
+                                ayah.numberInSurah,
+
+                            globalNumber:
+                                ayah.number,
+
+                            translation:
+                                malayAyah
+                                    ? malayAyah.text
+                                    : "Terjemahan tidak tersedia."
+
+                        };
+
+                    }
+                );
+
+            await saveQuranOffline(
+                `surah-${i}`,
+                {
+                    surahNumber: i,
+
+                    surah: surahInfo || {
+                        number: i,
+                        name: arabicData.name,
+                        englishName:
+                            arabicData.englishName,
+                        englishNameTranslation:
+                            arabicData
+                                .englishNameTranslation
+                    },
+
+                    ayahs: ayahs
+                }
+            );
+
+            // Beri sedikit ruang antara request
+            await new Promise(
+                resolve => setTimeout(resolve, 150)
+            );
+        }
+
+        button.textContent = "✅ 114/114";
+
+        alert(
+            "Alhamdulillah! Semua 114 Surah dan terjemahan telah disimpan untuk offline."
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Download Quran offline gagal:",
+            error
+        );
+
+        alert(
+            "Download berhenti.\n\n" +
+            error.message +
+            "\n\nSila cuba semula."
+        );
+
+        button.textContent = "📥";
+
+    } finally {
+
+        button.disabled = false;
+
+    }
+}
+
+
+// ==========================================
+// BUTANG SIMPAN QURAN OFFLINE
+// ==========================================
+
+const downloadQuranBtn =
+    document.getElementById(
+        "downloadQuranBtn"
+    );
+
+if (downloadQuranBtn) {
+
+    downloadQuranBtn.addEventListener(
+        "click",
+        downloadAllQuranOffline
+    );
+
+                     }
